@@ -12,6 +12,12 @@ const env = {
     siteUrl: process.env.OPENROUTER_SITE_URL || 'http://localhost:3000',
     siteName: process.env.OPENROUTER_SITE_NAME || 'FinTrack',
   },
+  whatsapp: {
+    verifyToken: process.env.WHATSAPP_VERIFY_TOKEN,
+    accessToken: process.env.WHATSAPP_ACCESS_TOKEN,
+    phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID,
+    apiVersion: process.env.WHATSAPP_API_VERSION || 'v25.0',
+  },
 };
 
 module.exports = env;
