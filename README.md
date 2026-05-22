@@ -1,23 +1,208 @@
-# FinTrack Backend
+# FinTrack
 
-Node.js + Express backend for FinTrack, an AI WhatsApp Personal Finance Tracker.
+**FinTrack** is an AI-powered WhatsApp Personal Finance Tracker that helps users record income and expenses using natural language messages, manual input, and later Android app interactions.
 
-## Current Features
+Users can write simple Indonesian transaction messages such as:
 
-- Express API server
-- `GET /health` health check
-- `POST /api/ai/parse-transaction` AI transaction parser using OpenRouter
-- Transaction CRUD API with Prisma + PostgreSQL
-- `POST /api/transactions/parse-and-save` AI parse and database save flow
+```text
+tadi beli kopi 18000 pakai dana
+gaji masuk 3 juta
+kemarin bayar kos 850 ribu
+naik gojek 25000 tadi malam
+```
 
-## Requirements
+FinTrack parses those messages into structured transaction data, stores them in PostgreSQL, and displays the result in a modern Android dashboard.
 
-- Node.js
-- npm
-- PostgreSQL database
-- OpenRouter API key
+## Project Progress
 
-## Setup
+**Progress: 35%**
+
+Current status:
+
+- Backend foundation is ready.
+- AI transaction parser is working with OpenRouter + DeepSeek.
+- PostgreSQL + Prisma schema is implemented.
+- Transaction CRUD API is available.
+- WhatsApp webhook receive flow is implemented.
+- Android basic UI and finance dashboard are implemented locally.
+- Next major work: budgeting, AI insights, authentication, deployment, and final polish.
+
+## Core Features
+
+### Implemented
+
+- Express backend API
+- Health check endpoint
+- AI transaction parser for Indonesian natural language
+- PostgreSQL database schema with Prisma
+- Transaction CRUD API
+- Parse-and-save transaction endpoint
+- WhatsApp Cloud API webhook verification
+- WhatsApp incoming message processing
+- Android Jetpack Compose basic UI
+- Android finance dashboard with local calculations
+- Transaction list, add transaction form, and detail screen
+
+### Planned
+
+- Budgeting feature
+- Full AI financial insight endpoint
+- Authentication with JWT
+- Android auth flow
+- Notification and reminder system
+- Deployment to production
+- Portfolio-ready documentation, screenshots, and demo video
+
+## Tech Stack
+
+### Backend
+
+- **Node.js**
+- **Express.js**
+- **dotenv** for environment variables
+- **cors** for cross-origin requests
+- **morgan** for HTTP logging
+- **zod** for validation
+- **Prisma** as ORM
+- **PostgreSQL** as database
+
+### AI Integration
+
+- **OpenRouter API** for AI model access
+- **DeepSeek model** for Indonesian natural language transaction parsing
+- Strict JSON output for transaction extraction
+
+Parsed transaction shape:
+
+```json
+{
+  "type": "expense",
+  "amount": 18000,
+  "category": "food_drink",
+  "description": "beli kopi",
+  "payment_method": "dana",
+  "transaction_date": "2026-05-21",
+  "confidence": 0.9
+}
+```
+
+### WhatsApp Integration
+
+- **WhatsApp Cloud API**
+- Webhook verification endpoint
+- Incoming message webhook
+- Text message parsing
+- Transaction saving from WhatsApp messages
+- Confirmation reply support
+
+> Note: During testing, Meta returned error `130497` for outbound messages to Indonesian numbers. For MVP, WhatsApp can run in receive-only mode: receive message, parse, save transaction, and tolerate reply failure.
+
+### Android
+
+- **Kotlin**
+- **Jetpack Compose**
+- **Material 3**
+- **Navigation Compose**
+- **Retrofit**
+- **OkHttp Logging Interceptor**
+- **ViewModel**
+- **Coroutines**
+- **StateFlow**
+
+### Design
+
+- **Figma** design reference
+- Clean Smart Finance style
+- Light mode
+- Emerald green finance branding
+- Deep navy balance card
+- Red expense accent
+- Green income accent
+- Amber insight/warning accent
+
+## Architecture Overview
+
+```mermaid
+graph TD
+    A[User Message] --> B{Input Source}
+    B --> C[WhatsApp Cloud API]
+    B --> D[Android App]
+    C --> E[Express Backend]
+    D --> E
+    E --> F[OpenRouter + DeepSeek AI Parser]
+    F --> G[Structured Transaction JSON]
+    G --> H[Validation Layer]
+    H --> I[Prisma ORM]
+    I --> J[PostgreSQL Database]
+    J --> K[Android Finance Dashboard]
+```
+
+## Repository Note
+
+This GitHub repository currently uses the **backend folder as the Git root**, so this README is placed here to represent the full FinTrack project professionally.
+
+Local project layout:
+
+```text
+fintrack/
+├── backend/      # Express API, Prisma, OpenRouter, WhatsApp webhook
+├── android/      # Kotlin Jetpack Compose app
+├── docs/         # Roadmap and project docs
+├── postman/      # API testing assets
+└── README.md     # Local root README
+```
+
+Backend module layout:
+
+```text
+backend/
+├── prisma/
+│   └── schema.prisma
+├── src/
+│   ├── config/
+│   ├── controllers/
+│   ├── routes/
+│   ├── services/
+│   ├── utils/
+│   └── validators/
+├── .env.example
+├── package.json
+└── README.md
+```
+
+## Backend API Endpoints
+
+### Health
+
+```http
+GET /health
+```
+
+### AI Parser
+
+```http
+POST /api/ai/parse-transaction
+```
+
+### Transactions
+
+```http
+POST /api/transactions
+GET /api/transactions
+GET /api/transactions/:id
+PATCH /api/transactions/:id
+DELETE /api/transactions/:id
+POST /api/transactions/parse-and-save
+```
+
+### WhatsApp Webhook
+
+```http
+GET /api/webhook/whatsapp
+POST /api/webhook/whatsapp
+```
+
+## Backend Setup
 
 Install dependencies:
 
@@ -25,360 +210,27 @@ Install dependencies:
 npm install
 ```
 
-Create a local environment file:
+Create `.env` file:
 
 ```bash
 cp .env.example .env
 ```
 
-On Windows PowerShell:
-
-```powershell
-copy .env.example .env
-```
-
-Fill `.env` with your local values:
+Example environment variables:
 
 ```env
 PORT=3000
 NODE_ENV=development
 DATABASE_URL="postgresql://postgres:password@localhost:5432/fintrack?schema=public"
-OPENROUTER_API_KEY="your_openrouter_api_key_here"
-OPENROUTER_MODEL="your_selected_model_here"
+OPENROUTER_API_KEY="your_openrouter_api_key"
+OPENROUTER_MODEL="your_deepseek_model"
 OPENROUTER_SITE_URL="http://localhost:3000"
 OPENROUTER_SITE_NAME="FinTrack"
+WHATSAPP_VERIFY_TOKEN="fintrack_verify_token_123"
+WHATSAPP_ACCESS_TOKEN="your_meta_whatsapp_access_token"
+WHATSAPP_PHONE_NUMBER_ID="your_meta_phone_number_id"
+WHATSAPP_API_VERSION="v25.0"
 ```
-
-## Run Server
-
-Development mode:
-
-```bash
-npm run dev
-```
-
-Production mode:
-
-```bash
-npm start
-```
-
-Default server URL:
-
-```text
-http://localhost:3000
-```
-
-## Health Check
-
-```http
-GET /health
-```
-
-Response:
-
-```json
-{
-  "status": "ok",
-  "message": "FinTrack backend is running"
-}
-```
-
-## AI Transaction Parser
-
-This endpoint parses a natural language transaction message but does not save it.
-
-```http
-POST /api/ai/parse-transaction
-Content-Type: application/json
-```
-
-Body:
-
-```json
-{
-  "message": "tadi pagi beli kopi 18000 pakai dana"
-}
-```
-
-Successful response:
-
-```json
-{
-  "success": true,
-  "data": {
-    "type": "expense",
-    "amount": 18000,
-    "category": "food_drink",
-    "description": "beli kopi",
-    "payment_method": "dana",
-    "transaction_date": "YYYY-MM-DD",
-    "confidence": 0.9
-  }
-}
-```
-
-## Transaction API
-
-### Create Manual Transaction
-
-```http
-POST /api/transactions
-Content-Type: application/json
-```
-
-Body:
-
-```json
-{
-  "type": "expense",
-  "amount": 22000,
-  "category": "food_drink",
-  "description": "ayam geprek",
-  "paymentMethod": "cash",
-  "transactionDate": "2026-05-21"
-}
-```
-
-Response:
-
-```json
-{
-  "success": true,
-  "message": "Transaction created successfully",
-  "data": {
-    "id": "...",
-    "type": "expense",
-    "amount": 22000,
-    "category": "food_drink",
-    "description": "ayam geprek",
-    "paymentMethod": "cash",
-    "transactionDate": "2026-05-21",
-    "source": "manual"
-  }
-}
-```
-
-Optional fields:
-
-- `userId`
-- `walletId`
-- `paymentMethod`
-- `transactionDate`
-- `source`
-- `rawMessage`
-- `confidence`
-
-### Get All Transactions
-
-```http
-GET /api/transactions
-```
-
-Supported query params:
-
-- `userId`
-- `type`: `income` or `expense`
-- `category`
-- `startDate`: `YYYY-MM-DD`
-- `endDate`: `YYYY-MM-DD`
-- `source`: `manual`, `ai_parser`, `whatsapp`, or `android`
-- `search`
-- `page`
-- `limit`, max `100`
-- `sortBy`: `transactionDate`, `createdAt`, or `amount`
-- `sortOrder`: `asc` or `desc`
-
-Examples:
-
-```http
-GET /api/transactions?type=expense
-GET /api/transactions?category=food_drink
-GET /api/transactions?startDate=2026-05-01&endDate=2026-05-31
-GET /api/transactions?search=kopi
-GET /api/transactions?page=1&limit=10
-```
-
-Response:
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "...",
-      "type": "expense",
-      "amount": 18000,
-      "category": "food_drink",
-      "description": "beli kopi",
-      "paymentMethod": "dana",
-      "transactionDate": "2026-05-21",
-      "source": "ai_parser"
-    }
-  ],
-  "pagination": {
-    "page": 1,
-    "limit": 20,
-    "total": 1,
-    "totalPages": 1
-  }
-}
-```
-
-### Get Transaction Detail
-
-```http
-GET /api/transactions/:id
-```
-
-If not found:
-
-```json
-{
-  "success": false,
-  "message": "Transaction not found"
-}
-```
-
-### Update Transaction
-
-```http
-PATCH /api/transactions/:id
-Content-Type: application/json
-```
-
-Body can contain partial fields:
-
-```json
-{
-  "amount": 25000,
-  "description": "kopi dan roti",
-  "paymentMethod": "dana"
-}
-```
-
-### Delete Transaction
-
-```http
-DELETE /api/transactions/:id
-```
-
-Response:
-
-```json
-{
-  "success": true,
-  "message": "Transaction deleted successfully"
-}
-```
-
-## Parse and Save Transaction
-
-This endpoint parses a natural language message with OpenRouter and saves the result to PostgreSQL.
-
-```http
-POST /api/transactions/parse-and-save
-Content-Type: application/json
-```
-
-Body:
-
-```json
-{
-  "message": "tadi pagi beli kopi 18000 pakai dana"
-}
-```
-
-Optional body fields:
-
-```json
-{
-  "message": "tadi pagi beli kopi 18000 pakai dana",
-  "userId": "optional-user-id",
-  "walletId": "optional-wallet-id"
-}
-```
-
-Response:
-
-```json
-{
-  "success": true,
-  "message": "Transaction parsed and saved successfully",
-  "data": {
-    "id": "...",
-    "type": "expense",
-    "amount": 18000,
-    "category": "food_drink",
-    "description": "beli kopi",
-    "paymentMethod": "dana",
-    "transactionDate": "2026-05-21",
-    "source": "ai_parser",
-    "rawMessage": "tadi pagi beli kopi 18000 pakai dana",
-    "confidence": 0.9
-  },
-  "parsed": {
-    "type": "expense",
-    "amount": 18000,
-    "category": "food_drink",
-    "description": "beli kopi",
-    "payment_method": "dana",
-    "transaction_date": "2026-05-21",
-    "confidence": 0.9
-  }
-}
-```
-
-## Postman Examples
-
-Manual create:
-
-```http
-POST http://localhost:3000/api/transactions
-```
-
-```json
-{
-  "type": "expense",
-  "amount": 22000,
-  "category": "food_drink",
-  "description": "ayam geprek",
-  "paymentMethod": "cash",
-  "transactionDate": "2026-05-21"
-}
-```
-
-Get all:
-
-```http
-GET http://localhost:3000/api/transactions
-```
-
-Filter expense:
-
-```http
-GET http://localhost:3000/api/transactions?type=expense
-```
-
-Search:
-
-```http
-GET http://localhost:3000/api/transactions?search=kopi
-```
-
-Parse and save:
-
-```http
-POST http://localhost:3000/api/transactions/parse-and-save
-```
-
-```json
-{
-  "message": "tadi pagi beli kopi 18000 pakai dana"
-}
-```
-
-## Prisma
 
 Generate Prisma Client:
 
@@ -392,232 +244,81 @@ Run migration:
 npm run prisma:migrate
 ```
 
-Open Prisma Studio:
+Start development server:
 
 ```bash
-npm run prisma:studio
-```
-
-## Database Models
-
-Initial schema includes:
-
-- `User`
-- `Wallet`
-- `Transaction`
-- `TransactionType` enum
-- `TransactionSource` enum
-
-## Testing Checklist
-
-- [ ] `GET /health` returns backend status.
-- [ ] `POST /api/ai/parse-transaction` parses Indonesian natural language.
-- [ ] `POST /api/transactions` creates a manual transaction.
-- [ ] `GET /api/transactions` returns paginated transaction list.
-- [ ] `GET /api/transactions?type=expense` filters by type.
-- [ ] `GET /api/transactions?search=kopi` searches description/raw message.
-- [ ] `GET /api/transactions/:id` returns transaction detail.
-- [ ] `PATCH /api/transactions/:id` updates only provided fields.
-- [ ] `DELETE /api/transactions/:id` deletes transaction.
-- [ ] `POST /api/transactions/parse-and-save` parses and stores AI transaction.
-
-## Common Errors
-
-### `OPENROUTER_API_KEY is missing`
-
-Add a valid OpenRouter API key to `.env`.
-
-### `OPENROUTER_MODEL is missing`
-
-Set a model in `.env`, for example an OpenRouter chat model ID.
-
-### `OpenRouter API request failed`
-
-Check your API key, model name, account credits, rate limits, and internet connection.
-
-### `AI response does not match the expected transaction schema`
-
-The model returned JSON, but it did not match the required transaction structure. Try a stronger model or re-test the message.
-
-### Prisma cannot connect to database
-
-Check that PostgreSQL is running and `DATABASE_URL` matches your local database credentials.
-
-### `Invalid userId or walletId reference`
-
-The provided `userId` or `walletId` does not exist in the database.
-
-### `Transaction not found`
-
-The transaction ID does not exist or was already deleted.
-
-## WhatsApp Cloud API Webhook
-
-Phase 6 adds WhatsApp webhook verification, message receive, AI parse, transaction save, and reply flow.
-
-### Environment Variables
-
-Add these to `backend/.env`:
-
-```env
-WHATSAPP_VERIFY_TOKEN="fintrack_verify_token_123"
-WHATSAPP_ACCESS_TOKEN="your_meta_whatsapp_access_token"
-WHATSAPP_PHONE_NUMBER_ID="your_meta_phone_number_id"
-WHATSAPP_API_VERSION="v25.0"
-```
-
-### Local Verification Test
-
-Run backend:
-
-```powershell
 npm run dev
 ```
 
-Open in browser:
+Backend runs on:
 
 ```text
-http://localhost:3000/api/webhook/whatsapp?hub.mode=subscribe&hub.verify_token=fintrack_verify_token_123&hub.challenge=123456
+http://localhost:3000
 ```
 
-Expected response must be plain text:
+## Android Setup
+
+Open this folder in Android Studio:
 
 ```text
-123456
+fintrack/android
 ```
 
-### Postman POST Webhook Test
+Important:
 
-Endpoint:
+- Use Android Studio for Gradle sync, emulator, build, and debugging.
+- Backend must be running before testing API-connected screens.
+- Android Emulator uses this backend URL:
 
-```http
-POST http://localhost:3000/api/webhook/whatsapp
-Content-Type: application/json
+```kotlin
+http://10.0.2.2:3000/
 ```
 
-Payload:
+If testing on a physical device, replace the base URL with your computer local network IP.
 
-```json
-{
-  "object": "whatsapp_business_account",
-  "entry": [
-    {
-      "id": "test_waba_id",
-      "changes": [
-        {
-          "value": {
-            "messaging_product": "whatsapp",
-            "metadata": {
-              "display_phone_number": "15551960802",
-              "phone_number_id": "test_phone_number_id"
-            },
-            "contacts": [
-              {
-                "profile": {
-                  "name": "Test User"
-                },
-                "wa_id": "6281111111111"
-              }
-            ],
-            "messages": [
-              {
-                "from": "6281111111111",
-                "id": "wamid.test123",
-                "timestamp": "1710000000",
-                "text": {
-                  "body": "tadi beli kopi 18000 pakai dana"
-                },
-                "type": "text"
-              }
-            ]
-          },
-          "field": "messages"
-        }
-      ]
-    }
-  ]
-}
-```
+## Dashboard Features
 
-Expected immediate response:
+The Android dashboard currently calculates locally from backend transactions:
 
-```json
-{
-  "success": true,
-  "message": "Webhook received"
-}
-```
+- Total income
+- Total expense
+- Current balance
+- Recent transactions
+- Monthly transaction count
+- Expense by category
+- Top spending category
+- Local AI insight preview
 
-The backend then processes the message asynchronously:
+## Roadmap Summary
 
-1. Extracts WhatsApp text message.
-2. Parses it with OpenRouter.
-3. Saves transaction with `source = "whatsapp"`.
-4. Sends confirmation reply to the sender.
+| Phase | Description | Status |
+|---|---|---|
+| Phase 0 | Repository setup | Done |
+| Phase 1 | Backend Express setup | Done |
+| Phase 2 | OpenRouter AI parser | Done |
+| Phase 3 | PostgreSQL + Prisma | Done |
+| Phase 4 | Transaction CRUD API | Done |
+| Phase 5 | Parse and save transaction | Done |
+| Phase 6 | WhatsApp Cloud API webhook | Done |
+| Phase 7 | Android basic UI | Done |
+| Phase 8 | Android finance dashboard | Done |
+| Phase 9 | Budgeting feature | Planned |
+| Phase 10 | AI financial insight | Planned |
+| Phase 11 | Authentication | Planned |
+| Phase 12 | Notification and reminder | Planned |
+| Phase 13 | Deployment | Planned |
+| Phase 14 | Testing and error handling | Planned |
+| Phase 15 | Portfolio finalization | Planned |
 
-### Ngrok + Meta Dashboard Test
+## Project Goal
 
-Run ngrok:
+FinTrack is designed as a portfolio-ready full-stack project combining:
 
-```powershell
-ngrok http 3000
-```
+- Real-world backend API development
+- AI integration
+- WhatsApp webhook integration
+- PostgreSQL database modeling
+- Android app development with Jetpack Compose
+- Practical personal finance use case
 
-Use this callback URL in Meta WhatsApp webhook settings:
-
-```text
-https://YOUR_NGROK_URL/api/webhook/whatsapp
-```
-
-Verify token:
-
-```text
-fintrack_verify_token_123
-```
-
-Subscribe to WhatsApp message events, then send a real message to your WhatsApp test number:
-
-```text
-tadi beli kopi 18000 pakai dana
-```
-
-Expected bot reply:
-
-```text
-✅ Transaksi dicatat!
-
-Pengeluaran: Rp18.000
-Kategori: food_drink
-Deskripsi: beli kopi
-Tanggal: 2026-05-21
-Metode: dana
-```
-
-### WhatsApp Common Errors
-
-#### `Invalid verify token`
-
-The token in URL does not match `WHATSAPP_VERIFY_TOKEN` in `.env`. Restart backend after editing `.env`.
-
-#### Reply is not sent
-
-Check:
-
-- `WHATSAPP_ACCESS_TOKEN`
-- `WHATSAPP_PHONE_NUMBER_ID`
-- WhatsApp API version
-- Meta app permissions
-- Recipient test number is registered in Meta test recipients
-
-#### POST webhook returns success but no transaction is saved
-
-Check backend terminal logs. Common causes:
-
-- OpenRouter API key/model issue
-- AI parser response invalid
-- PostgreSQL not running
-- Message type is not `text`
-
-#### Meta keeps retrying webhook
-
-Make sure `POST /api/webhook/whatsapp` returns HTTP 200 quickly. FinTrack processes messages asynchronously after acknowledgement.
+The final target is to make this project ready for GitHub, CV, LinkedIn, demo video, and technical interviews.
