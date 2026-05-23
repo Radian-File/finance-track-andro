@@ -16,6 +16,7 @@ model User {
   updatedAt    DateTime      @updatedAt
   transactions Transaction[]
   wallets      Wallet[]
+  budgets      Budget[]
 }
 
 model Wallet {
@@ -52,6 +53,24 @@ model Transaction {
   @@index([transactionDate])
   @@index([type])
   @@index([category])
+}
+
+model Budget {
+  id          String   @id @default(cuid())
+  userId      String?
+  category    String
+  limitAmount Decimal
+  month       Int
+  year        Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([category])
+  @@index([month])
+  @@index([year])
+  @@index([category, month, year])
 }
 
 enum TransactionType {

@@ -6,6 +6,7 @@ const aiRoutes = require('./routes/ai.routes');
 const healthRoutes = require('./routes/health.routes');
 const transactionRoutes = require('./routes/transaction.routes');
 const whatsappRoutes = require('./routes/whatsapp.routes');
+const budgetRoutes = require('./routes/budget.routes');
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(morgan('dev'));
 app.use('/health', healthRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/budgets', budgetRoutes);
 app.use('/api/webhook/whatsapp', whatsappRoutes);
 
 app.use((req, res) => {

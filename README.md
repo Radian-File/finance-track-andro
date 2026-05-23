@@ -15,7 +15,7 @@ FinTrack parses those messages into structured transaction data, stores them in 
 
 ## Project Progress
 
-**Progress: 35%**
+**Progress: 45%**
 
 Current status:
 
@@ -25,7 +25,8 @@ Current status:
 - Transaction CRUD API is available.
 - WhatsApp webhook receive flow is implemented.
 - Android basic UI and finance dashboard are implemented locally.
-- Next major work: budgeting, AI insights, authentication, deployment, and final polish.
+- Budgeting backend API and Android budget screen are implemented.
+- Next major work: AI insights, authentication, deployment, and final polish.
 
 ## Core Features
 
@@ -42,10 +43,10 @@ Current status:
 - Android Jetpack Compose basic UI
 - Android finance dashboard with local calculations
 - Transaction list, add transaction form, and detail screen
+- Budgeting CRUD API with usage calculation
+- Android budget list, create/update/delete flow, and progress cards
 
 ### Planned
-
-- Budgeting feature
 - Full AI financial insight endpoint
 - Authentication with JWT
 - Android auth flow
@@ -195,6 +196,81 @@ DELETE /api/transactions/:id
 POST /api/transactions/parse-and-save
 ```
 
+### Budgets
+
+```http
+POST /api/budgets
+GET /api/budgets
+GET /api/budgets/:id
+PATCH /api/budgets/:id
+DELETE /api/budgets/:id
+```
+
+Budget usage is calculated from expense transactions in the same category and selected month/year.
+
+Create budget example:
+
+```http
+POST /api/budgets
+Content-Type: application/json
+```
+
+```json
+{
+  "category": "food_drink",
+  "limitAmount": 1000000,
+  "month": 5,
+  "year": 2026
+}
+```
+
+Get budget list example:
+
+```http
+GET /api/budgets?month=5&year=2026
+```
+
+Update budget example:
+
+```http
+PATCH /api/budgets/{id}
+Content-Type: application/json
+```
+
+```json
+{
+  "limitAmount": 1200000
+}
+```
+
+Delete budget example:
+
+```http
+DELETE /api/budgets/{id}
+```
+
+Budget response includes:
+
+```json
+{
+  "id": "...",
+  "category": "food_drink",
+  "limitAmount": 1000000,
+  "month": 5,
+  "year": 2026,
+  "usedAmount": 650000,
+  "remainingAmount": 350000,
+  "usagePercentage": 65,
+  "status": "safe"
+}
+```
+
+Budget status rules:
+
+- `safe`: usage below 80%
+- `warning`: usage from 80% to below 100%
+- `exceeded`: usage 100% or above
+
 ### WhatsApp Webhook
 
 ```http
@@ -302,7 +378,7 @@ The Android dashboard currently calculates locally from backend transactions:
 | Phase 6 | WhatsApp Cloud API webhook | Done |
 | Phase 7 | Android basic UI | Done |
 | Phase 8 | Android finance dashboard | Done |
-| Phase 9 | Budgeting feature | Planned |
+| Phase 9 | Budgeting feature | Done |
 | Phase 10 | AI financial insight | Planned |
 | Phase 11 | Authentication | Planned |
 | Phase 12 | Notification and reminder | Planned |
