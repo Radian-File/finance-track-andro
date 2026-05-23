@@ -189,6 +189,7 @@ POST /api/auth/register
 POST /api/auth/login
 GET /api/auth/me
 POST /api/auth/logout
+GET /api/reminders/summary
 ```
 
 Register example:
@@ -247,6 +248,15 @@ Content-Type: application/json
 ```
 
 When a valid token is sent, FinTrack automatically uses the authenticated user's `userId` for transactions, budgets, and monthly insights.
+
+Reminder summary example:
+
+```http
+GET /api/reminders/summary?month=5&year=2026
+Authorization: Bearer <token>
+```
+
+The reminder summary returns whether the user has logged transactions today and budget warnings when usage is at least 80%.
 
 ### AI Parser
 

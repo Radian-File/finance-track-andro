@@ -8,6 +8,7 @@ const transactionRoutes = require('./routes/transaction.routes');
 const whatsappRoutes = require('./routes/whatsapp.routes');
 const budgetRoutes = require('./routes/budget.routes');
 const authRoutes = require('./routes/auth.routes');
+const reminderRoutes = require('./routes/reminder.routes');
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/budgets', budgetRoutes);
+app.use('/api/reminders', reminderRoutes);
 app.use('/api/webhook/whatsapp', whatsappRoutes);
 
 app.use((req, res) => {
