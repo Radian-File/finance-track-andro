@@ -101,9 +101,9 @@ async function getBudgets(filters) {
   return Promise.all(budgets.map((budget) => formatBudgetWithUsage(budget)));
 }
 
-async function getBudgetById(id) {
-  const budget = await prisma.budget.findUnique({
-    where: { id },
+async function getBudgetById(id, userId) {
+  const budget = await prisma.budget.findFirst({
+    where: removeUndefined({ id, userId }),
   });
 
   if (!budget) {
@@ -113,8 +113,8 @@ async function getBudgetById(id) {
   return formatBudgetWithUsage(budget);
 }
 
-async function updateBudget(id, data) {
-  await getBudgetById(id);
+async function updateBudget(id, data, authenticatedUserId) {
+  await getBudgetById(id, authenticatedUserId);
 
   try {
     const budget = await prisma.budget.update({
@@ -134,8 +134,8 @@ async function updateBudget(id, data) {
   }
 }
 
-async function deleteBudget(id) {
-  await getBudgetById(id);
+async function deleteBudget(id, authenticatedUserId) {
+  await getBudgetById(id, authenticatedUserId);
 
   await prisma.budget.delete({
     where: { id },

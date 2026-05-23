@@ -12,6 +12,10 @@ const env = {
     siteUrl: process.env.OPENROUTER_SITE_URL || 'http://localhost:3000',
     siteName: process.env.OPENROUTER_SITE_NAME || 'FinTrack',
   },
+  jwt: {
+    secret: process.env.JWT_SECRET || 'fintrack_development_secret_change_me',
+    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+  },
   whatsapp: {
     verifyToken: process.env.WHATSAPP_VERIFY_TOKEN,
     accessToken: process.env.WHATSAPP_ACCESS_TOKEN,

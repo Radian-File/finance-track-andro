@@ -22,7 +22,12 @@ async function createTransaction(req, res, next) {
       return sendValidationError(res, validationResult);
     }
 
-    const transaction = await transactionService.createTransaction(validationResult.data);
+    const payload = {
+      ...validationResult.data,
+      ...(req.user ? { userId: req.user.id } : {}),
+    };
+
+    const transaction = await transactionService.createTransaction(payload);
 
     return res.status(201).json({
       success: true,
@@ -42,7 +47,12 @@ async function getTransactions(req, res, next) {
       return sendValidationError(res, validationResult);
     }
 
-    const result = await transactionService.getTransactions(validationResult.data);
+    const filters = {
+      ...validationResult.data,
+      ...(req.user ? { userId: req.user.id } : {}),
+    };
+
+    const result = await transactionService.getTransactions(filters);
 
     return res.status(200).json({
       success: true,
@@ -56,7 +66,10 @@ async function getTransactions(req, res, next) {
 
 async function getTransactionById(req, res, next) {
   try {
-    const transaction = await transactionService.getTransactionById(req.params.id);
+    const transaction = await transactionService.getTransactionById(
+      req.params.id,
+      req.user?.id,
+    );
 
     return res.status(200).json({
       success: true,
@@ -75,7 +88,16 @@ async function updateTransaction(req, res, next) {
       return sendValidationError(res, validationResult);
     }
 
-    const transaction = await transactionService.updateTransaction(req.params.id, validationResult.data);
+    const payload = {
+      ...validationResult.data,
+      ...(req.user ? { userId: req.user.id } : {}),
+    };
+
+    const transaction = await transactionService.updateTransaction(
+      req.params.id,
+      payload,
+      req.user?.id,
+    );
 
     return res.status(200).json({
       success: true,
@@ -89,7 +111,7 @@ async function updateTransaction(req, res, next) {
 
 async function deleteTransaction(req, res, next) {
   try {
-    await transactionService.deleteTransaction(req.params.id);
+    await transactionService.deleteTransaction(req.params.id, req.user?.id);
 
     return res.status(200).json({
       success: true,
@@ -108,7 +130,12 @@ async function parseAndSaveTransaction(req, res, next) {
       return sendValidationError(res, validationResult);
     }
 
-    const result = await transactionService.parseAndSaveTransaction(validationResult.data);
+    const payload = {
+      ...validationResult.data,
+      ...(req.user ? { userId: req.user.id } : {}),
+    };
+
+    const result = await transactionService.parseAndSaveTransaction(payload);
 
     return res.status(201).json({
       success: true,

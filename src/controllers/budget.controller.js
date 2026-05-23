@@ -21,7 +21,12 @@ async function createBudget(req, res, next) {
       return sendValidationError(res, validationResult);
     }
 
-    const budget = await budgetService.createBudget(validationResult.data);
+    const payload = {
+      ...validationResult.data,
+      ...(req.user ? { userId: req.user.id } : {}),
+    };
+
+    const budget = await budgetService.createBudget(payload);
 
     return res.status(201).json({
       success: true,
@@ -41,7 +46,12 @@ async function getBudgets(req, res, next) {
       return sendValidationError(res, validationResult);
     }
 
-    const budgets = await budgetService.getBudgets(validationResult.data);
+    const filters = {
+      ...validationResult.data,
+      ...(req.user ? { userId: req.user.id } : {}),
+    };
+
+    const budgets = await budgetService.getBudgets(filters);
 
     return res.status(200).json({
       success: true,
@@ -54,7 +64,7 @@ async function getBudgets(req, res, next) {
 
 async function getBudgetById(req, res, next) {
   try {
-    const budget = await budgetService.getBudgetById(req.params.id);
+    const budget = await budgetService.getBudgetById(req.params.id, req.user?.id);
 
     return res.status(200).json({
       success: true,
@@ -73,7 +83,12 @@ async function updateBudget(req, res, next) {
       return sendValidationError(res, validationResult);
     }
 
-    const budget = await budgetService.updateBudget(req.params.id, validationResult.data);
+    const payload = {
+      ...validationResult.data,
+      ...(req.user ? { userId: req.user.id } : {}),
+    };
+
+    const budget = await budgetService.updateBudget(req.params.id, payload, req.user?.id);
 
     return res.status(200).json({
       success: true,
@@ -87,7 +102,7 @@ async function updateBudget(req, res, next) {
 
 async function deleteBudget(req, res, next) {
   try {
-    await budgetService.deleteBudget(req.params.id);
+    await budgetService.deleteBudget(req.params.id, req.user?.id);
 
     return res.status(200).json({
       success: true,

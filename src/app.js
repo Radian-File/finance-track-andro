@@ -7,6 +7,7 @@ const healthRoutes = require('./routes/health.routes');
 const transactionRoutes = require('./routes/transaction.routes');
 const whatsappRoutes = require('./routes/whatsapp.routes');
 const budgetRoutes = require('./routes/budget.routes');
+const authRoutes = require('./routes/auth.routes');
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json({ limit: '1mb' }));
 app.use(morgan('dev'));
 
 app.use('/health', healthRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/budgets', budgetRoutes);

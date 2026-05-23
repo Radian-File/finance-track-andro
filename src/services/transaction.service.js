@@ -136,9 +136,9 @@ async function getTransactions(filters) {
   };
 }
 
-async function getTransactionById(id) {
-  const transaction = await prisma.transaction.findUnique({
-    where: { id },
+async function getTransactionById(id, userId) {
+  const transaction = await prisma.transaction.findFirst({
+    where: removeUndefined({ id, userId }),
   });
 
   if (!transaction) {
@@ -148,8 +148,8 @@ async function getTransactionById(id) {
   return formatTransaction(transaction, { includeTimestamps: true });
 }
 
-async function updateTransaction(id, data) {
-  await getTransactionById(id);
+async function updateTransaction(id, data, authenticatedUserId) {
+  await getTransactionById(id, authenticatedUserId);
 
   try {
     const transaction = await prisma.transaction.update({
@@ -163,8 +163,8 @@ async function updateTransaction(id, data) {
   }
 }
 
-async function deleteTransaction(id) {
-  await getTransactionById(id);
+async function deleteTransaction(id, authenticatedUserId) {
+  await getTransactionById(id, authenticatedUserId);
 
   await prisma.transaction.delete({
     where: { id },

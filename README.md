@@ -15,7 +15,7 @@ FinTrack parses those messages into structured transaction data, stores them in 
 
 ## Project Progress
 
-**Progress: 45%**
+**Progress: 65%**
 
 Current status:
 
@@ -26,7 +26,9 @@ Current status:
 - WhatsApp webhook receive flow is implemented.
 - Android basic UI and finance dashboard are implemented locally.
 - Budgeting backend API and Android budget screen are implemented.
-- Next major work: AI insights, authentication, deployment, and final polish.
+- AI monthly financial insight backend API and Android Insights screen are implemented.
+- Email/password authentication, JWT session, and Android login/register/profile flow are implemented.
+- Next major work: notifications, deployment, and final polish.
 
 ## Core Features
 
@@ -45,11 +47,12 @@ Current status:
 - Transaction list, add transaction form, and detail screen
 - Budgeting CRUD API with usage calculation
 - Android budget list, create/update/delete flow, and progress cards
+- AI monthly financial insight endpoint with OpenRouter fallback
+- Android AI Insights screen with health score, breakdown, recommendation, warning, and saving tip
+- Email/password authentication with bcrypt password hashing and JWT
+- Android login, register, saved token session, Authorization header, and profile logout
 
 ### Planned
-- Full AI financial insight endpoint
-- Authentication with JWT
-- Android auth flow
 - Notification and reminder system
 - Deployment to production
 - Portfolio-ready documentation, screenshots, and demo video
@@ -179,10 +182,91 @@ backend/
 GET /health
 ```
 
+### Auth
+
+```http
+POST /api/auth/register
+POST /api/auth/login
+GET /api/auth/me
+POST /api/auth/logout
+```
+
+Register example:
+
+```http
+POST /api/auth/register
+Content-Type: application/json
+```
+
+```json
+{
+  "name": "Ricky",
+  "email": "ricky@example.com",
+  "password": "password123"
+}
+```
+
+Login example:
+
+```http
+POST /api/auth/login
+Content-Type: application/json
+```
+
+```json
+{
+  "email": "ricky@example.com",
+  "password": "password123"
+}
+```
+
+Authenticated request example:
+
+```http
+GET /api/auth/me
+Authorization: Bearer <token>
+```
+
+Authenticated transaction create example:
+
+```http
+POST /api/transactions
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+```json
+{
+  "type": "expense",
+  "amount": 22000,
+  "category": "food_drink",
+  "description": "ayam geprek",
+  "paymentMethod": "cash",
+  "transactionDate": "2026-05-21"
+}
+```
+
+When a valid token is sent, FinTrack automatically uses the authenticated user's `userId` for transactions, budgets, and monthly insights.
+
 ### AI Parser
 
 ```http
 POST /api/ai/parse-transaction
+GET /api/ai/monthly-insight
+```
+
+Monthly insight example:
+
+```http
+GET /api/ai/monthly-insight?month=5&year=2026
+```
+
+Response includes the selected period, calculated financial summary, expense category breakdown, and AI-generated Indonesian insight. If OpenRouter fails, the backend returns a local fallback insight. If there are no transactions, OpenRouter is not called and FinTrack returns a helpful empty insight.
+
+Invalid month example:
+
+```http
+GET /api/ai/monthly-insight?month=13&year=2026
 ```
 
 ### Transactions
@@ -379,8 +463,8 @@ The Android dashboard currently calculates locally from backend transactions:
 | Phase 7 | Android basic UI | Done |
 | Phase 8 | Android finance dashboard | Done |
 | Phase 9 | Budgeting feature | Done |
-| Phase 10 | AI financial insight | Planned |
-| Phase 11 | Authentication | Planned |
+| Phase 10 | AI financial insight | Done |
+| Phase 11 | Authentication | Done |
 | Phase 12 | Notification and reminder | Planned |
 | Phase 13 | Deployment | Planned |
 | Phase 14 | Testing and error handling | Planned |
